@@ -8,7 +8,7 @@
 
 # Machine name.
 function box_name {
-    [ -f ~/.box-name ] && cat ~/.box-name || hostname -s
+    [ -f ~/.box-name ] && cat ~/.box-name || hostname
 }
 
 #Customized git status, oh-my-zsh currently does not allow render dirty status before branch
