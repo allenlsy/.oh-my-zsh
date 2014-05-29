@@ -82,7 +82,7 @@ PROMPT="
 %{$terminfo[bold]$fg[yellow]%}${current_dir}%{$reset_color%}\
 ${git_info} \
 %{$fg[white]%}[%*] \
-$(git_time_since_commit) \
+$(git_time_since_commit) 
 %{$terminfo[bold]$fg[red]%}$ %{$reset_color%}"
 
 
