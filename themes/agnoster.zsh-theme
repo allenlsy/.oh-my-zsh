@@ -6,7 +6,7 @@
 # # README
 #
 # In order for this theme to render correctly, you will need a
-# [Powerline-patched font](https://github.com/Lokaltog/powerline-fonts).
+# [Powerline-patched font](https://gist.github.com/1595572).
 #
 # In addition, I recommend the
 # [Solarized theme](https://github.com/altercation/solarized/) and, if you're
@@ -26,7 +26,7 @@
 # A few utility functions to make it easy and re-usable to draw segmented prompts
 
 CURRENT_BG='NONE'
-SEGMENT_SEPARATOR=''
+SEGMENT_SEPARATOR='⮀'
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -67,10 +67,9 @@ prompt_context() {
 
 # Git: branch/detached head, dirty status
 prompt_git() {
-  local ref dirty mode repo_path
-  repo_path=$(git rev-parse --git-dir 2>/dev/null)
-
+  local ref dirty
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    ZSH_THEME_GIT_PROMPT_DIRTY='±'
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git show-ref --head -s --abbrev |head -n1 2> /dev/null)"
     if [[ -n $dirty ]]; then
@@ -98,7 +97,7 @@ prompt_git() {
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
-    echo -n "${ref/refs\/heads\// }${vcs_info_msg_0_%% }${mode}"
+    echo -n "${ref/refs\/heads\//⭠ }${vcs_info_msg_0_%% }${mode}"
   fi
 }
 
@@ -142,14 +141,6 @@ prompt_dir() {
   prompt_segment blue black '%~'
 }
 
-# Virtualenv: current working virtualenv
-prompt_virtualenv() {
-  local virtualenv_path="$VIRTUAL_ENV"
-  if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
-    prompt_segment blue black "(`basename $virtualenv_path`)"
-  fi
-}
-
 # Status:
 # - was there an error
 # - am I root
@@ -168,12 +159,14 @@ prompt_status() {
 build_prompt() {
   RETVAL=$?
   prompt_status
-  prompt_virtualenv
   prompt_context
   prompt_dir
   prompt_git
-  prompt_hg
   prompt_end
 }
 
 PROMPT='%{%f%b%k%}$(build_prompt) '
+
+if [[ -s ~/.rvm/scripts/rvm ]] ; then
+  RPROMPT='%{$fg[white]%}[`~/.rvm/bin/rvm-prompt`][node `node -v`]%{$reset_color%} $EPS1'
+fi
