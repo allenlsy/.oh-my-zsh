@@ -44,8 +44,6 @@ CURRENT_BG='NONE'
   # what font the user is viewing this source code in. Do not replace the
   # escape sequence with a single literal character.
   SEGMENT_SEPARATOR=$'\ue0b0' # 
-
-  SEGMENT_SEPARATOR='⮀'
 }
 
 # Begin a segment
@@ -92,14 +90,11 @@ prompt_git() {
   () {
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
     PL_BRANCH_CHAR=$'\ue0a0'         # 
-
-    PL_BRANCH_CHAR='⭠'
   }
   local ref dirty mode repo_path
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    ZSH_THEME_GIT_PROMPT_DIRTY='±'
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
     if [[ -n $dirty ]]; then
@@ -171,6 +166,14 @@ prompt_dir() {
   prompt_segment blue black '%~'
 }
 
+# Virtualenv: current working virtualenv
+prompt_virtualenv() {
+  local virtualenv_path="$VIRTUAL_ENV"
+  if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
+    prompt_segment blue black "(`basename $virtualenv_path`)"
+  fi
+}
+
 # Status:
 # - was there an error
 # - am I root
@@ -189,14 +192,15 @@ prompt_status() {
 build_prompt() {
   RETVAL=$?
   prompt_status
+  prompt_virtualenv
   prompt_context
   prompt_dir
   prompt_git
+  prompt_hg
   prompt_end
 }
 
 PROMPT='%{%f%b%k%}$(build_prompt) '
 
-if [[ -s ~/.rvm/scripts/rvm ]] ; then
-  RPROMPT='%{$fg[white]%}[`~/.rvm/bin/rvm-prompt`][node `node -v`]%{$reset_color%} $EPS1'
-fi
+SEGMENT_R_SEPARATOR=$'\ue0b3'
+RPROMPT='%{$bg[blue]%} `date +"%r"` %{$reset_color%}'
